@@ -1,7 +1,8 @@
 import Expo from 'expo';
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Navigator } from 'react-native';
 import TaskList from './task-list';
+import TaskForm from './task-form';
 
 
 class main extends Component {
@@ -15,25 +16,72 @@ class main extends Component {
         {
           task: 'Learn redux',
         },
-        {
-          task: 'Hi Bubs',
-        },
       ],
     };
   }
 
-onAddStarted() {
-console.log('on add started');
-}
+  onAddStarted() {
+    this.nav.push({
+      name: 'taskform',
+    });
+  }
+
+  onCancel() {
+    console.log('canclled');
+    this.nav.pop();
+  }
+
+  onAdd(task) {
+    console.log('add button wow ', task);
+    this.state.todos.push({ task });
+    this.setState({ todos: this.state.todos });
+    this.nav.pop();
+  }
+
+  onDone(todo) {
+    console.log('this is done: ', todo.task);
+    const filteredTodos =
+      this.state.todos.filter((filterTodo) => {
+        return filterTodo !== todo;
+      });
+    this.setState({ todos: filteredTodos });
+  }
+
+  renderScene(route, nav) {
+    switch (route.name) {
+      case 'taskform':
+        return (
+          <TaskForm
+            onAdd={this.onAdd.bind(this)}
+            onCancel={this.onCancel.bind(this)}
+          />
+        );
+
+      default:
+        return (
+          <TaskList
+            onAddStarted={this.onAddStarted.bind(this)}
+            onDone={this.onDone.bind(this)}
+            todos={this.state.todos}
+          />
+        );
+    }
+  }
+
+  configureScene() {
+    return Navigator.SceneConfigs.FloatFromBottom;
+  }
 
   render() {
     return (
-      <View>
-        <TaskList 
-        onAddStarted={this.onAddStarted.bind(this)}
-        todos={this.state.todos}
-        />
-      </View>
+      <Navigator
+        configureScene={this.configureScene}
+        initialRoute={{ name: 'TaskList', index: 0 }}
+        ref={((nav) => {
+          this.nav = nav;
+        })}
+        renderScene={this.renderScene.bind(this)}
+      />
     );
   }
 }

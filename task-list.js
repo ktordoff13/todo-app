@@ -4,9 +4,9 @@ import TaskRow from './task-row';
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 20,
+        paddingTop: 25,
         backgroundColor: '#F7F7F7',
-        flex: 0,
+        flex: 1,
         justifyContent: 'flex-start',
     },
     button: {
@@ -38,9 +38,21 @@ class TaskList extends Component {
         };
     }
 
+    componentWillReceiveProps(nextProps) {
+        const dataSource = this
+            .state
+            .dataSource
+            .cloneWithRows(nextProps.todos);
+
+        this.setState({ dataSource });
+    }
+
     renderRow(todo) {
         return (
-            <TaskRow todo={todo} />
+            <TaskRow
+                onDone={this.props.onDone}
+                todo={todo}
+            />
         );
     }
 
@@ -53,18 +65,19 @@ class TaskList extends Component {
                 />
 
                 <TouchableHighlight
-                onPress={this.props.onAddStarted}
+                    onPress={this.props.onAddStarted}
                     style={styles.button}>
                     <Text
-                        style={styles.buttonText}> add one </Text>
-
+                        style={styles.buttonText}> Add Task </Text>
                 </TouchableHighlight>
+
             </View>
         );
     }
 }
 
 TaskList.propTypes = {
+    onDone: React.PropTypes.func.isRequired,
     onAddStarted: React.PropTypes.func.isRequired,
     todos: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
 };
